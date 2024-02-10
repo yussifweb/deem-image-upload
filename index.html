@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload with Cloudinary</title>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+</head>
+<body>
+    <style>
+    /* Base styles */
+body {
+  font-family: sans-serif;
+  margin: 20px;
+}
+
+/* Upload box */
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#imageUpload {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+/* Preview list */
+#previewList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#previewList li {
+  display: inline-block;
+  margin: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+#previewList li img {
+  width: 100%;
+  height: 100%;
+  max-width: 200px;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+/* Add progress bar styles if needed */
+
+/* Optional: Success/error indicators for each preview item */
+.preview-success {
+  border-color: green;
+}
+
+.preview-error {
+  border-color: red;
+}
+
+    </style>
+
+
+<input type="file" id="imageUpload" multiple accept="image/*">
+<ul id="previewList"></ul>
+
+<script src="https://cdn.jsdelivr.net/npm/cloudinary-core@2.15.1/cloudinary-core-shrinkwrap.min.js"></script>
+<script>
+cloudinary.config({
+  cloud_name: 'YOUR_CLOUD_NAME',
+  api_key: 'YOUR_API_KEY',
+  api_secret: 'YOUR_API_SECRET'
+});
+
+const imageUpload = document.getElementById('imageUpload');
+const previewList = document.getElementById('previewList');
+
+imageUpload.addEventListener('change', (event) => {
+  const files = event.target.files;
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const previewItem = document.createElement('li');
+      previewItem.innerHTML = `<li><img id="previewImage" src="${event.target.result}" alt="Preview"><li>`;
+      previewList.appendChild(previewItem);
+
+      cloudinary.v2.uploader.upload(file, {
+        resource_type: 'image',
+        quality: 'auto',
+        fetch_format: 'auto',
+        width: 800,
+        crop: 'limit'
+      }, (error, result) => {
+        if (error) {
+          console.error(error);
+          // Handle upload error for this individual image
+        } else {
+          console.log('Image uploaded successfully:', result.secure_url);
+          // Add uploaded image details to the preview item (e.g., URL, status)
+        }
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+});
+</script>
+
+</body>
+</html>

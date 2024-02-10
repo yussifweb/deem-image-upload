@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload with Cloudinary</title>
+    <!-- Inside head tag -->
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.28.0/js/vendor/jquery.ui.widget.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.28.0/js/jquery.iframe-transport.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.28.0/js/jquery.fileupload.min.js"></script>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+</head>
+<body>
+
+    <style>
+        /* Inside style.css */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        #upload-form {
+            margin-bottom: 20px;
+        }
+
+        #file-input {
+            display: block;
+        }
+
+        #upload-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #upload-button:hover {
+            background-color: #45a049;
+        }
+
+        #img{
+            width: 200px;
+            height: 250px;
+            object-fit: cover;
+            object-position: center;
+            margin: 15px;
+            border-radius: 15px;
+        }
+
+    </style>
+    <!-- Your HTML Content Goes Here -->
+    <!-- Inside body tag -->
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="file-input" accept="image/*" multiple />
+        <button type="button" id="upload-button">Upload</button>
+    </form>
+    <div id="preview-container"></div>
+
+<script>
+// Inside script.js
+const cloudName = 'dmbas9zwc'; // Replace with your Cloudinary cloud name
+
+cloudinary.setCloudName(cloudName);
+
+const fileInput = document.getElementById('file-input');
+const uploadButton = document.getElementById('upload-button');
+const previewContainer = document.getElementById('preview-container');
+
+fileInput.addEventListener('change', () => {
+    previewContainer.innerHTML = ''; // Clear previous previews
+
+    const files = fileInput.files;
+
+    for (const file of files) {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const imageUrl = e.target.result;
+            previewContainer.innerHTML += `<img src="${imageUrl}" alt="Preview" id="img" />`;
+        };
+
+        reader.readAsDataURL(file);
+    }
+});
+
+uploadButton.addEventListener('click', () => {
+    const files = fileInput.files;
+
+    if (files.length > 0) {
+        const formData = new FormData();
+
+        for (const file of files) {
+            formData.append('files[]', file);
+        }
+
+        // Use Cloudinary's upload API
+        cloudinary.uploader.upload(
+            formData,
+            { upload_preset: 'koee2vl8', multiple: true, folder: "deem2024", clientAllowedFormats: ["images"] }, // Replace with your Cloudinary upload preset
+            (error, result) => {
+                if (!error) {
+                    console.log(result);
+                    alert('Images uploaded successfully!');
+                } else {
+                    console.error(error);
+                    alert('Error uploading images. Please try again.');
+                }
+            }
+        );
+    } else {
+        alert('Please select one or more images to upload.');
+    }
+});
+
+</script>
+<!-- <script src="script.js"></script> -->
+</body>
+</html>
